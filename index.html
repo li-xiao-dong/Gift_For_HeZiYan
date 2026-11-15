@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="zh-CN" data-mode="edit">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#141719">
+<title>相遇轨迹 · 照片编辑</title>
+<meta name="description" content="在相遇轨迹的节点放入照片，调整照片的位置和出现时间。">
+<style>
+:root{color-scheme:dark;--bg:#141719;--panel:#1b1e21;--panel-up:#222629;--line:#353a3d;--text:#f1eee7;--muted:#b4b8b9;--accent:#e5c491;--accent-bg:#342c22;--focus:#efcb92;font-family:Inter,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;font-size:14px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text)}button,input{font:inherit}button{cursor:pointer;color:inherit}button:disabled{opacity:.55;cursor:default}button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}button,.control{border:1px solid var(--line);background:var(--panel-up);border-radius:8px}button:hover:not(:disabled){border-color:#8b7c64}button{padding:8px 12px;white-space:nowrap;min-height:36px}button.primary{background:var(--accent);color:#19150f;border-color:transparent;font-weight:700}button.subtle{background:transparent}button.danger{color:#f0b5a8}input[type=text],input[type=number]{display:block;background:#141719;color:var(--text);border:1px solid var(--line);border-radius:7px;padding:8px 9px;min-height:37px;width:100%}input[type=range]{accent-color:var(--accent);cursor:pointer}input[type=range]:focus-visible{outline-offset:2px}input::placeholder{color:#9da2a4}h1,h2,h3,p{margin:0}h1{font-size:23px;font-weight:680;letter-spacing:.035em}h2{font-size:16px;font-weight:640}h3{font-size:14px;font-weight:630}.muted{color:var(--muted)}.time{font-variant-numeric:tabular-nums;white-space:nowrap}
+header.top{border-bottom:1px solid var(--line);background:#191c1e}.top-inner{max-width:1560px;margin:auto;padding:17px 26px;display:flex;align-items:center;justify-content:space-between;gap:14px}.top-left,.top-right{display:flex;align-items:center;gap:13px}.brand-dot{width:11px;height:11px;border-radius:50%;background:#ffe5ae;box-shadow:0 0 16px #d19b58aa;flex:none}#saveStatus{font-size:12px;text-align:right}.workbench{max-width:1560px;margin:auto;padding:22px 26px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}.viewer,.inspector{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}.viewer-heading,.inspector-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px}.viewer-heading{border-bottom:1px solid var(--line)}
+.stage{position:relative;aspect-ratio:1052/592;background:#0c1018;overflow:hidden;user-select:none;container-type:inline-size;isolation:isolate}.stage video,.photo-layer{position:absolute;inset:0;width:100%;height:100%}.stage video{object-fit:contain}.photo-layer{pointer-events:none;z-index:1}.photo{position:absolute;display:grid;overflow:hidden;place-items:stretch;aspect-ratio:4/3;transform:translate(-50%,-50%);border-radius:6%;border:1px solid #f5deaba8;box-shadow:0 0 22px #f3cb8f40,0 4px 16px #0009;background:#1c1e25;isolation:isolate;pointer-events:none}.photo[hidden]{display:none}.photo img{display:block;width:100%;height:100%;inset:0;position:absolute;object-fit:contain}.photo .caption{position:absolute;inset:auto 0 0;padding:18% 8% 6%;background:linear-gradient(transparent,#0a0a11d9);color:#fff3dd;font-size:clamp(8px,1.5cqw,21px);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.photo .caption[hidden]{display:none}.photo.ghost{border-style:dashed;background:#1e2128c9;place-items:center;box-shadow:none;font-size:clamp(9px,1.5cqw,16px);color:#efd1a6;padding:2%;text-align:center}.photo.draggable{cursor:grab;pointer-events:auto;touch-action:none}.photo.dragging{cursor:grabbing}.stage:fullscreen,.stage.presentation{container-type:normal;display:flex;align-items:center;justify-content:center;background:#080a0e}.stage:fullscreen .composition,.stage.presentation .composition{position:relative;width:min(100vw,177.7027vh);aspect-ratio:1052/592;container-type:inline-size}.stage:not(:fullscreen):not(.presentation) .composition{position:absolute;inset:0}.stage.presentation{position:fixed;z-index:10;inset:0;width:100vw;height:100dvh;aspect-ratio:auto}.screen-tools{position:absolute;z-index:2;top:14px;right:14px;display:none;gap:8px}.stage:fullscreen .screen-tools,.stage.presentation .screen-tools{display:flex}.screen-tools button{background:#20232bcc}
+.transport{padding:12px 14px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.transport .time{margin-left:auto;font-size:13px}.timeline-wrap{padding:4px 16px 13px}.timeline{position:relative;height:25px;margin:0 5px}.timeline:before{content:"";position:absolute;left:0;right:0;top:11px;height:4px;background:#30373a;border-radius:4px}.current-progress{position:absolute;left:0;top:11px;height:4px;background:#b89a6d;border-radius:4px;pointer-events:none}.timeline input{position:absolute;inset:0;width:100%;height:25px;margin:0;appearance:none;background:transparent}.timeline input::-webkit-slider-thumb{appearance:none;width:12px;height:16px;border-radius:4px;background:#f2dfb8;box-shadow:0 0 0 2px #141719}.timeline input::-moz-range-thumb{width:12px;height:16px;border:0;border-radius:4px;background:#f2dfb8}.markers{position:relative;height:24px;margin:0 5px}.marker{position:absolute;transform:translateX(-50%);top:4px;width:16px;min-height:16px;height:16px;padding:0;border:1px solid #627473;background:#303d3e;border-radius:50%;font-size:0}.marker.has-photo{background:#d9b171;border-color:#d9b171}.marker.selected{outline:2px solid #ecd09f;outline-offset:2px}.viewer-foot{padding:8px 15px 13px;font-size:12px;min-height:41px}.viewer-foot[hidden]{display:none}
+.inspector-heading{border-bottom:1px solid var(--line)}.nodes{list-style:none;padding:6px 7px;margin:0;max-height:204px;overflow:auto;scrollbar-color:#545756 transparent}.node-button{width:100%;background:transparent;border:1px solid transparent;display:grid;grid-template-columns:53px 1fr auto;align-items:center;gap:8px;text-align:left;padding:6px 8px;font-size:13px;min-height:35px}.node-button[aria-current=true]{background:var(--accent-bg);border-color:#826541;color:#ffe3b9}.node-button .node-name{overflow:hidden;text-overflow:ellipsis}.node-button .tag{color:#a8b3b3;font-size:11px}.node-button .tag.on{color:#edc78e}.edit{padding:14px;border-top:1px solid var(--line);display:grid;gap:12px}.edit[hidden]{display:none}.edit-top{display:flex;justify-content:space-between;align-items:center;gap:6px}.edit-top h3{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{display:grid;gap:5px;font-size:12px;color:var(--muted)}.field.full{grid-column:1/-1}.photo-setup{display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:center}.thumbnail{width:52px;height:50px;border:1px dashed #636260;border-radius:7px;display:grid;place-items:center;background:#151819;color:#b6ad9e;overflow:hidden;font-size:11px}.thumbnail img{width:100%;height:100%;object-fit:cover}.photo-setup .controls{display:flex;gap:6px;flex-wrap:wrap}.photo-setup button{min-height:31px;padding:5px 9px}.photo-setup p{font-size:11px;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.size-row{display:grid;grid-template-columns:auto minmax(65px,1fr) auto;gap:7px;align-items:center;color:var(--muted);font-size:12px}.size-row input{width:100%;min-width:0}.edit-actions{display:flex;justify-content:space-between;gap:6px}.edit-actions button{font-size:12px;padding:6px 8px}.hint{color:var(--muted);font-size:12px;line-height:1.6}#fileError{color:#f5ae9f}#fileError:empty{display:none}.empty{padding:13px;color:var(--muted);font-size:12px}.empty[hidden]{display:none}
+@media(max-width:820px){.workbench{grid-template-columns:minmax(0,1fr);padding:12px;gap:12px}.top-inner{padding:12px}.top-left,.top-right{gap:8px}.nodes{max-height:170px}.viewer-heading,.inspector-heading{padding:9px 12px}.viewer-foot{padding-top:5px;min-height:34px}.transport{padding:8px 12px}.edit{gap:10px}.brand-dot{display:none}}
+@media(max-width:440px){h1{font-size:18px}.top-right{flex-direction:column;align-items:flex-end;gap:3px}.top-right button{min-height:31px;padding:4px 9px}.top-inner{gap:4px;padding:9px 12px}.transport{gap:5px}.transport button{padding:6px 7px;font-size:12px;min-height:33px}.transport .time{font-size:12px}.timeline-wrap{padding-bottom:7px}}
+
+.project-actions{display:flex;gap:6px}.top-right{flex-wrap:wrap;justify-content:flex-end}.viewer-foot{line-height:1.55}
+@media(max-width:820px){.nodes{display:flex;gap:5px;overflow-x:auto;overscroll-behavior-inline:contain;padding:8px}.nodes li{flex:none}.node-button{min-width:110px;min-height:51px;grid-template-columns:auto auto;justify-items:start;column-gap:6px;row-gap:0;padding:5px 7px;border-color:var(--line)}.node-button .tag{grid-column:1/-1}.node-button .time{color:var(--muted);font-size:11px}.node-button .node-name{max-width:104px}.project-actions button{min-height:38px}.edit{padding-bottom:max(14px,env(safe-area-inset-bottom))}input[type=text],input[type=number]{font-size:16px}.marker{width:19px;min-height:19px;height:19px}}
+@media(max-width:440px){.top-inner{align-items:center}.top-right{flex-direction:column-reverse;align-items:flex-end}.project-actions button{padding:5px 8px}.top-inner{min-height:68px}.brand-dot{display:block;width:7px;height:7px}}
+
+.project-actions{flex-wrap:wrap;justify-content:flex-end}
+html[data-mode=watch] .top-right,html[data-mode=watch] .inspector,html[data-mode=watch] .markers{display:none}
+html[data-mode=watch] .workbench{display:block;max-width:1150px}
+html[data-mode=watch] .top-inner{max-width:1150px}
+html[data-mode=watch] .timeline-wrap{padding-bottom:14px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="top-left"><span class="brand-dot" aria-hidden="true"></span><h1>相遇轨迹</h1></div>
+    <div class="top-right"><span id="saveStatus" class="muted" role="status">正在载入工程…</span><div class="project-actions"><button id="open" class="subtle" disabled>导入工程</button><button id="save" class="subtle" disabled>导出备份</button><button id="exportPlayer" class="primary" disabled>导出播放页</button></div><input id="openFile" type="file" accept=".json,.html,.htm,application/json,text/html" hidden></div>
+  </div>
+</header>
+<main class="workbench">
+  <section class="viewer" aria-label="视频与时间轴">
+    <div class="viewer-heading"><h2 id="viewerTitle">画面预览</h2><button id="present" class="subtle">全屏预览</button></div>
+    <div id="stage" class="stage">
+      <div class="composition">
+        <video id="video" preload="metadata" src="./trajectory.mp4" poster="./poster.jpg" playsinline aria-label="相遇轨迹底片"></video>
+        <div id="photoLayer" class="photo-layer"></div>
+      </div>
+      <div class="screen-tools"><button id="screenPlay">暂停</button><button id="screenExit">退出全屏</button></div>
+    </div>
+    <div class="transport">
+      <button id="play" class="primary">播放</button><button id="restart" class="subtle">回到开头</button><button id="mute" class="subtle" aria-pressed="false">静音</button><span class="time" id="clock">00:00.00 / 01:32.95</span>
+    </div>
+    <div class="timeline-wrap">
+      <div class="timeline"><div id="progress" class="current-progress"></div><input id="seek" type="range" min="0" max="92.95" step="0.01" value="0" aria-label="播放进度"></div>
+      <div id="markers" class="markers" aria-label="时间轴上的照片节点"></div>
+    </div>
+    <p id="viewerFoot" class="viewer-foot muted">点一个节点定位。暂停时可以拖动照片。</p>
+  </section>
+  <section class="inspector" aria-label="照片节点编辑">
+    <div class="inspector-heading"><h2>照片节点</h2><button id="add" class="subtle" disabled>＋ 新增节点</button></div>
+    <ol id="nodes" class="nodes"></ol>
+    <p id="empty" class="empty" hidden>先在时间轴上定位，再新增节点。</p>
+    <form id="edit" class="edit" hidden>
+      <div class="edit-top"><h3 id="editTitle"></h3><button type="button" id="jump" class="subtle">定位</button></div>
+      <div class="photo-setup">
+        <div class="thumbnail" id="thumb">照片</div>
+        <div><div class="controls"><button type="button" id="choose" class="primary">选照片</button><button type="button" id="clear" class="subtle" hidden>移除照片</button></div><p id="photoName" class="muted">支持 JPG、PNG、WebP</p></div>
+        <input id="picker" type="file" accept="image/*" hidden>
+      </div>
+      <p id="fileError" class="hint" role="status"></p>
+      <div class="fields">
+        <label class="field full">节点名称<input id="nodeName" type="text" maxlength="36"></label>
+        <label class="field">出现时间（秒）<input id="start" type="number" min="0" step="0.01" inputmode="decimal"></label>
+        <label class="field">停留时长（秒）<input id="duration" type="number" min="0.25" step="0.05" inputmode="decimal"></label>
+        <label class="field full">照片文字（可留空）<input id="caption" type="text" maxlength="40" placeholder="例如：第一次见面"></label>
+      </div>
+      <label class="size-row">照片宽度<input id="size" type="range" min="9" max="36" step="1"><span class="time" id="sizeValue"></span></label>
+      <div class="edit-actions"><button type="button" id="useNow" class="subtle">从当前播放位置开始</button><button type="button" id="remove" class="subtle danger">删除节点</button></div>
+      <p class="hint">照片会淡入、短暂停留，再淡出。</p>
+    </form>
+  </section>
+</main>
+<script id="project" type="application/json">{"version":1,"nodes":[{"id":"parents","name":"父母","start":6.1,"duration":2.25,"x":74,"y":30,"size":19,"caption":"","image":"","photoName":""},{"id":"playmates","name":"童年玩伴","start":10.35,"duration":2.15,"x":72,"y":30,"size":18,"caption":"","image":"","photoName":""},{"id":"teachers","name":"老师","start":14.6,"duration":2.15,"x":72,"y":29,"size":18,"caption":"","image":"","photoName":""},{"id":"classmates","name":"同学","start":18.15,"duration":2.45,"x":75,"y":37,"size":20,"caption":"","image":"","photoName":""},{"id":"first-love","name":"初恋","start":22.55,"duration":2.15,"x":76,"y":30,"size":18,"caption":"","image":"","photoName":""},{"id":"roommates","name":"室友","start":26.45,"duration":2.15,"x":73,"y":27,"size":19,"caption":"","image":"","photoName":""},{"id":"colleagues","name":"同事","start":30.25,"duration":2.15,"x":75,"y":34,"size":19,"caption":"","image":"","photoName":""},{"id":"friend","name":"挚友","start":36.0,"duration":2.15,"x":76,"y":34,"size":18,"caption":"","image":"","photoName":""},{"id":"stranger","name":"陌生人","start":40.0,"duration":2.15,"x":76,"y":33,"size":18,"caption":"","image":"","photoName":""},{"id":"partner","name":"爱人","start":63.0,"duration":2.3,"x":55,"y":28,"size":18,"caption":"","image":"","photoName":""},{"id":"child","name":"孩子","start":67.2,"duration":2.45,"x":65,"y":28,"size":18,"caption":"","image":"","photoName":""},{"id":"closing","name":"片尾合照","start":87.15,"duration":4.45,"x":35,"y":23,"size":19,"caption":"","image":"","photoName":""}]}</script>
+<script>
+'use strict';
+const playerMode = document.documentElement.dataset.mode === 'watch';
+const editorMarkup = playerMode ? '' : document.documentElement.outerHTML;
+const $ = id => document.getElementById(id);
+const video = $('video');
+const stage = $('stage');
+const layer = $('photoLayer');
+const project = JSON.parse($('project').textContent);
+const status = $('saveStatus');
+let database = null;
+let saveTimer = 0;
+let stateReady = false;
+let pendingSeek = null;
+const overlays = new Map();
+const accents = ['#dbba8e','#abd9d0','#ddd8f3','#b2c9ed','#e6afbf','#b3dbcb'];
+let activeId = project.nodes[0]?.id ?? null;
+let total = 92.95;
+let frameRequest = 0;
+let drag = null;
+const clamp = (value, min, max) => Math.max(min, Math.min(value, max));
+const round = value => Math.round(value * 100) / 100;
+const current = () => project.nodes.find(node => node.id === activeId);
+const sorted = () => [...project.nodes].sort((a,b) => a.start - b.start);
+
+function formatTime(seconds, fractions = true) {
+  const centiseconds = Math.floor(Math.max(0, seconds) * 100 + 0.001);
+  const minutes = String(Math.floor(centiseconds / 6000)).padStart(2, '0');
+  const secs = String(Math.floor(centiseconds / 100) % 60).padStart(2, '0');
+  return `${minutes}:${secs}${fractions ? '.' + String(centiseconds % 100).padStart(2, '0') : ''}`;
+}
+function button(text, className) {
+  const element = document.createElement('button');
+  element.type = 'button';
+  element.className = className;
+  element.textContent = text;
+  return element;
+}
+function openDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('xiangyu-photo-project', 1);
+    request.onupgradeneeded = () => request.result.createObjectStore('projects');
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+function readSavedProject() {
+  return new Promise((resolve, reject) => {
+    const request = database.transaction('projects').objectStore('projects').get('current');
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+function saveProject() {
+  clearTimeout(saveTimer);
+  saveTimer = 0;
+  if (!database) {
+    status.textContent = '可导出备份保存修改';
+    return;
+  }
+  try {
+    const transaction = database.transaction('projects', 'readwrite');
+    transaction.objectStore('projects').put(project, 'current');
+    transaction.oncomplete = () => {
+      if (!saveTimer) status.textContent = '已保存在此浏览器';
+    };
+    transaction.onerror = () => { status.textContent = '本机保存失败，请导出备份'; };
+  } catch {
+    status.textContent = '本机保存失败，请导出备份';
+  }
+}
+function setDirty() {
+  if (!database) {
+    status.textContent = '可导出备份保存修改';
+    return;
+  }
+  status.textContent = '正在保存…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveProject, 220);
+}
+function constrain(node) {
+  node.start = round(clamp(node.start, 0, Math.max(0, total - 0.25)));
+  node.duration = round(clamp(node.duration, 0.25, total - node.start));
+  const halfW = node.size / 2;
+  const halfH = node.size * 1052 / 592 * 0.75 / 2;
+  node.x = round(clamp(node.x, halfW + 1, 99 - halfW));
+  node.y = round(clamp(node.y, halfH + 1, 99 - halfH));
+}
+function renderTimeline() {
+  const rows = document.createDocumentFragment();
+  const marks = document.createDocumentFragment();
+  for (const node of sorted()) {
+    const li = document.createElement('li');
+    const row = button('', 'node-button');
+    row.dataset.id = node.id;
+    row.setAttribute('aria-current', String(node.id === activeId));
+    const time = document.createElement('span');
+    time.className = 'time';
+    time.textContent = formatTime(node.start, false);
+    const name = document.createElement('span');
+    name.className = 'node-name';
+    name.textContent = node.name;
+    const tag = document.createElement('span');
+    tag.className = node.image ? 'tag on' : 'tag';
+    tag.textContent = node.image ? '已放照片' : '待放照片';
+    row.append(time, name, tag);
+    row.addEventListener('click', () => selectNode(node));
+    li.append(row);
+    rows.append(li);
+    const dot = button('', `marker${node.image ? ' has-photo' : ''}${node.id === activeId ? ' selected' : ''}`);
+    dot.style.left = `${node.start / total * 100}%`;
+    dot.title = `${formatTime(node.start)} ${node.name}`;
+    dot.setAttribute('aria-label', dot.title);
+    dot.addEventListener('click', () => selectNode(node));
+    marks.append(dot);
+  }
+  $('nodes').replaceChildren(rows);
+  $('markers').replaceChildren(marks);
+  $('empty').hidden = project.nodes.length > 0;
+}
+function renderEditor() {
+  const node = current();
+  $('edit').hidden = !node;
+  if (!node) return;
+  $('editTitle').textContent = node.name;
+  $('nodeName').value = node.name;
+  $('caption').value = node.caption;
+  $('start').max = round(total - 0.25);
+  $('start').value = node.start.toFixed(2);
+  $('duration').max = round(total - node.start);
+  $('duration').value = node.duration.toFixed(2);
+  $('size').value = node.size;
+  $('sizeValue').textContent = `${node.size}%`;
+  $('choose').textContent = node.image ? '替换照片' : '选照片';
+  $('clear').hidden = !node.image;
+  $('photoName').textContent = node.photoName || '支持 JPG、PNG、WebP';
+  $('photoName').title = node.photoName || '';
+  if (node.image) {
+    const image = new Image();
+    image.alt = '当前照片';
+    image.src = node.image;
+    $('thumb').replaceChildren(image);
+  } else {
+    $('thumb').textContent = '照片';
+  }
+}
+function renderOverlays() {
+  overlays.clear();
+  const fragment = document.createDocumentFragment();
+  for (const [index, node] of sorted().entries()) {
+    if (playerMode && !node.image) continue;
+    const photo = document.createElement('div');
+    photo.className = `photo${node.image ? '' : ' ghost'}`;
+    photo.dataset.id = node.id;
+    photo.hidden = true;
+    photo.style.borderColor = accents[index % accents.length];
+    if (node.image) {
+      const image = new Image();
+      image.src = node.image;
+      image.alt = node.name;
+      const caption = document.createElement('div');
+      caption.className = 'caption';
+      caption.textContent = node.caption;
+      caption.hidden = !node.caption;
+      photo.append(image, caption);
+    } else {
+      photo.textContent = '照片摆放位置';
+      photo.setAttribute('aria-hidden', 'true');
+    }
+    fragment.append(photo);
+    overlays.set(node.id, photo);
+  }
+  layer.replaceChildren(fragment);
+}
+function updatePosition(node) {
+  const photo = overlays.get(node.id);
+  if (!photo) return;
+  photo.style.left = `${node.x}%`;
+  photo.style.top = `${node.y}%`;
+  photo.style.width = `${node.size}%`;
+}
+function presentationIsOpen() {
+  return document.fullscreenElement === stage || stage.classList.contains('presentation');
+}
+function updateFrame() {
+  const time = video.currentTime;
+  const editing = !playerMode && video.paused && !presentationIsOpen();
+  const percent = time / total * 100;
+  $('seek').value = time;
+  $('progress').style.width = `${percent}%`;
+  $('clock').textContent = `${formatTime(time)} / ${formatTime(total)}`;
+  for (const node of project.nodes) {
+    const photo = overlays.get(node.id);
+    if (!photo) continue;
+    const elapsed = time - node.start;
+    const inRange = elapsed >= -0.005 && elapsed < node.duration;
+    const selected = editing && activeId === node.id;
+    const visible = inRange && (Boolean(node.image) || selected);
+    photo.hidden = !visible;
+    if (!visible) continue;
+    const fade = Math.min(0.32, node.duration / 3);
+    const amount = clamp(Math.min(elapsed, node.duration - elapsed) / fade, 0, 1);
+    photo.style.opacity = selected ? 1 : amount * amount * (3 - 2 * amount);
+    photo.classList.toggle('draggable', selected);
+    updatePosition(node);
+  }
+}
+function refresh() {
+  if (!playerMode) {
+    renderTimeline();
+    renderEditor();
+  }
+  renderOverlays();
+  updateFrame();
+}
+function seek(time) {
+  if (video.readyState === 0) {
+    pendingSeek = time;
+    return;
+  }
+  video.currentTime = clamp(time, 0, total);
+  updateFrame();
+}
+function jumpToNode(node) {
+  video.pause();
+  seek(node.start + Math.min(0.42, node.duration / 2));
+}
+function selectNode(node) {
+  activeId = node.id;
+  $('fileError').textContent = '';
+  refresh();
+  jumpToNode(node);
+}
+function updateTiming(node, field, value) {
+  if (!Number.isFinite(value)) {
+    renderEditor();
+    return;
+  }
+  node[field] = value;
+  constrain(node);
+  setDirty();
+  refresh();
+  jumpToNode(node);
+}
+function updatePlaybackButtons() {
+  $('play').textContent = video.paused ? '播放' : '暂停';
+  $('screenPlay').textContent = $('play').textContent;
+  updateFrame();
+}
+function animationFrame() {
+  updateFrame();
+  if (!video.paused) frameRequest = requestAnimationFrame(animationFrame);
+}
+async function togglePlay() {
+  if (!video.paused) {
+    video.pause();
+    return;
+  }
+  if (video.ended) seek(0);
+  try {
+    await video.play();
+  } catch {
+    $('viewerFoot').hidden = false;
+    $('viewerFoot').textContent = '视频暂时无法播放，请刷新网页后重试。';
+  }
+}
+async function resizePhoto(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    image.src = url;
+    await image.decode();
+    const scale = Math.min(1, 1280 / Math.max(image.naturalWidth, image.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/webp', 0.9);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+$('picker').addEventListener('change', async event => {
+  const node = current();
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file || !node) return;
+  $('fileError').textContent = '';
+  try {
+    const image = await resizePhoto(file);
+    if (!project.nodes.includes(node)) return;
+    node.image = image;
+    node.photoName = file.name;
+    setDirty();
+    refresh();
+    if (activeId === node.id) jumpToNode(node);
+  } catch {
+    $('fileError').textContent = '这张图片无法打开。可以换一张 JPG、PNG 或 WebP。';
+  }
+});
+$('choose').addEventListener('click', () => $('picker').click());
+$('clear').addEventListener('click', () => {
+  const node = current();
+  node.image = '';
+  node.photoName = '';
+  setDirty();
+  refresh();
+  jumpToNode(node);
+});
+$('nodeName').addEventListener('change', event => {
+  const node = current();
+  node.name = event.target.value.trim() || '照片节点';
+  setDirty();
+  refresh();
+});
+$('caption').addEventListener('input', event => {
+  current().caption = event.target.value;
+  setDirty();
+  renderOverlays();
+  updateFrame();
+});
+for (const field of ['start','duration']) {
+  $(field).addEventListener('change', event => updateTiming(current(), field, event.target.valueAsNumber));
+}
+$('size').addEventListener('input', event => {
+  const node = current();
+  node.size = Number(event.target.value);
+  constrain(node);
+  $('sizeValue').textContent = `${node.size}%`;
+  setDirty();
+  if (video.paused) jumpToNode(node);
+  updateFrame();
+});
+$('jump').addEventListener('click', () => jumpToNode(current()));
+$('useNow').addEventListener('click', () => updateTiming(current(), 'start', video.currentTime));
+$('add').addEventListener('click', () => {
+  const node = {id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`, name:'新照片节点', start:video.currentTime, duration:2.2, x:76, y:29, size:19, caption:'', image:'', photoName:''};
+  constrain(node);
+  project.nodes.push(node);
+  setDirty();
+  selectNode(node);
+  $('nodeName').focus();
+  $('nodeName').select();
+});
+$('remove').addEventListener('click', () => {
+  const items = sorted();
+  const index = items.findIndex(node => node.id === activeId);
+  project.nodes = project.nodes.filter(node => node.id !== activeId);
+  setDirty();
+  const next = sorted()[Math.min(index, project.nodes.length - 1)];
+  if (next) selectNode(next);
+  else {
+    activeId = null;
+    refresh();
+  }
+});
+layer.addEventListener('pointerdown', event => {
+  const photo = event.target.closest('.photo.draggable');
+  if (!photo || (event.pointerType === 'mouse' && event.button !== 0)) return;
+  const node = current();
+  if (!node || node.id !== photo.dataset.id) return;
+  const bounds = layer.getBoundingClientRect();
+  drag = {id:event.pointerId, node, photo, bounds, originX:event.clientX, originY:event.clientY, x:node.x, y:node.y};
+  photo.classList.add('dragging');
+  layer.setPointerCapture(event.pointerId);
+});
+layer.addEventListener('pointermove', event => {
+  if (!drag || drag.id !== event.pointerId) return;
+  drag.node.x = drag.x + (event.clientX - drag.originX) / drag.bounds.width * 100;
+  drag.node.y = drag.y + (event.clientY - drag.originY) / drag.bounds.height * 100;
+  constrain(drag.node);
+  updatePosition(drag.node);
+  setDirty();
+});
+for (const name of ['pointerup','pointercancel','lostpointercapture']) {
+  layer.addEventListener(name, event => {
+    if (!drag || drag.id !== event.pointerId) return;
+    drag.photo.classList.remove('dragging');
+    drag = null;
+  });
+}
+$('play').addEventListener('click', togglePlay);
+$('screenPlay').addEventListener('click', togglePlay);
+$('restart').addEventListener('click', () => seek(0));
+$('mute').addEventListener('click', () => {
+  video.muted = !video.muted;
+  $('mute').textContent = video.muted ? '取消静音' : '静音';
+  $('mute').setAttribute('aria-pressed', String(video.muted));
+});
+$('seek').addEventListener('input', event => seek(Number(event.target.value)));
+$('present').addEventListener('click', async () => {
+  try {
+    if (typeof stage.requestFullscreen !== 'function') throw new Error('Fullscreen unavailable');
+    await stage.requestFullscreen();
+  } catch {
+    stage.classList.add('presentation');
+  }
+  updateFrame();
+});
+$('screenExit').addEventListener('click', async () => {
+  if (document.fullscreenElement === stage) await document.exitFullscreen();
+  stage.classList.remove('presentation');
+  updateFrame();
+});
+document.addEventListener('fullscreenchange', updateFrame);
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && stage.classList.contains('presentation')) $('screenExit').click();
+});
+video.addEventListener('loadedmetadata', () => {
+  total = video.duration;
+  $('seek').max = total;
+  for (const node of project.nodes) constrain(node);
+  if (stateReady) refresh();
+  if (pendingSeek !== null) {
+    seek(pendingSeek);
+    pendingSeek = null;
+  }
+});
+video.addEventListener('play', () => {
+  cancelAnimationFrame(frameRequest);
+  updatePlaybackButtons();
+  frameRequest = requestAnimationFrame(animationFrame);
+});
+video.addEventListener('pause', () => {
+  cancelAnimationFrame(frameRequest);
+  updatePlaybackButtons();
+});
+for (const name of ['seeked','timeupdate','ended']) video.addEventListener(name, updateFrame);
+video.addEventListener('error', () => {
+  $('viewerFoot').hidden = false;
+  $('viewerFoot').textContent = '无法加载视频，请检查网络并刷新。';
+});
+function replaceProject(next) {
+  if (next?.version !== 1 || !Array.isArray(next.nodes)) throw new Error('Invalid project');
+  const ids = new Set();
+  const nodes = next.nodes.map(node => {
+    const {id,name,start,duration,x,y,size,caption,image,photoName} = node ?? {};
+    if (typeof id !== 'string' || !id || ids.has(id) || typeof name !== 'string' ||
+      ![start,duration,x,y,size].every(Number.isFinite) || typeof caption !== 'string' ||
+      typeof photoName !== 'string' || typeof image !== 'string' ||
+      (image && !/^data:image\/(?:jpeg|png|webp|gif);base64,[a-z0-9+/=]+$/i.test(image))) {
+      throw new Error('Invalid photo node');
+    }
+    ids.add(id);
+    const cleaned = {id,name:name.slice(0,36),start,duration,x,y,size:clamp(size,9,36),caption:caption.slice(0,40),image,photoName};
+    constrain(cleaned);
+    return cleaned;
+  });
+  project.nodes = nodes;
+  activeId = sorted()[0]?.id ?? null;
+}
+function saveDownload(filename, contents, type) {
+  const url = URL.createObjectURL(new Blob([contents], {type}));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+$('save').addEventListener('click', () => {
+  saveDownload('相遇轨迹_照片节点.json', JSON.stringify(project), 'application/json;charset=utf-8');
+});
+$('exportPlayer').addEventListener('click', () => {
+  const player = {version:project.version, nodes:project.nodes.filter(node => node.image)};
+  const json = JSON.stringify(player).replace(/</g, '\\u003c');
+  const page = editorMarkup
+    .replace('data-mode="edit"', 'data-mode="watch"')
+    .replace('<title>相遇轨迹 · 照片编辑</title>', '<title>相遇轨迹</title>')
+    .replace(/(<script id="project" type="application\/json">)[\s\S]*?(<\/script>)/, (_, open, close) => open + json + close);
+  saveDownload('watch.html', '<!doctype html>\n' + page, 'text/html;charset=utf-8');
+  status.textContent = '已导出 watch.html';
+});
+$('open').addEventListener('click', () => $('openFile').click());
+$('openFile').addEventListener('change', async event => {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  try {
+    const raw = await file.text();
+    const savedNodeData = raw.match(/<script id="project" type="application\/json">([\s\S]*?)<\/script>/);
+    const next = JSON.parse(savedNodeData?.[1] ?? raw);
+    replaceProject(next);
+    video.pause();
+    refresh();
+    if (current()) jumpToNode(current());
+    saveProject();
+  } catch {
+    status.textContent = '无法导入这份工程';
+  }
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && saveTimer) saveProject();
+});
+(async () => {
+  if (playerMode) {
+    activeId = null;
+    stateReady = true;
+    $('viewerTitle').textContent = '短片';
+    $('viewerFoot').hidden = true;
+    refresh();
+    return;
+  }
+  try {
+    database = await openDatabase();
+    const saved = await readSavedProject();
+    if (saved) replaceProject(saved);
+    status.textContent = saved ? '已载入此浏览器的工程' : '修改会保存在此浏览器';
+  } catch {
+    status.textContent = '可导出备份保存修改';
+  } finally {
+    stateReady = true;
+    $('add').disabled = false;
+    $('open').disabled = false;
+    $('save').disabled = false;
+    $('exportPlayer').disabled = false;
+    refresh();
+  }
+})();
+</script>
+</body>
+</html>
